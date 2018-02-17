@@ -85,11 +85,23 @@ class Vote {
     return await instance.getWallet({from: accounts[0]})
   }
 
-  async submitVote () {
+  async submitVote (candidateId) {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
+    const votingPublicKey = await instance.votingPublicKey() // TODO: does this work?
 
-    return await instance.submitVote({from: accounts[0]})
+    // TODO: generate nonce
+
+    let vote = {
+      choice: candidateId,
+      nonce: 'TODO'
+    }
+
+    let encryptedVote = JSON.stringify(vote)
+    console.log(votingPublicKey)
+    // TODO: encrypt with votingPublicKey
+
+    await instance.submitVote(encryptedVote, {from: accounts[0]})
   }
 
   /* ANYBODY */
@@ -105,6 +117,18 @@ class Vote {
     }
 
     return candidates
+  }
+
+  async getVotes () {
+    const instance = await this.contract.deployed()
+    const votingPrivateKey = await instance.votingPrivateKey() // TODO: does this work?
+
+    let encryptedVotes = await instance.encryptedVotes() // TODO: does this work?
+    // TODO: decrypt votes
+    console.log(encryptedVotes, votingPrivateKey)
+    let votes = []
+
+    return votes
   }
 }
 

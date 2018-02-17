@@ -4,16 +4,19 @@ contract Vote {
   address public owner;
   bool public votingHasStarted;
   bool public votingHasEnded;
+  string public votingPublicKey;
+  string public votingPrivateKey;
   Candidate[] public candidates;
 
   mapping (address => string) addressEncryptedPrivateKeyMapping;
   mapping (address => bool) canVoteMapping;
 
+  string[] public encryptedVotes;
+
   // for storing a potential candidate
   struct Candidate {
     string description;
     string image; // base64 encoded (small!) image
-    uint votes;
   }
 
   // only owner can call
@@ -54,21 +57,22 @@ contract Vote {
     Candidate storage c = candidates[candidateId];
     c.description = description;
     c.image = image;
-    c.votes = 0;
     return candidateId;
   }
 
   // begin the voting period
-  function beginVoting(address[] votingAddresses) restricted() preVotingPeriod() public {
+  function beginVoting(address[] votingAddresses, string publicKey) restricted() preVotingPeriod() public {
     votingHasStarted = true;
     for (uint i = 0; i < votingAddresses.length; i++) {
       canVoteMapping[votingAddresses[i]] = true;
     }
+    votingPublicKey = publicKey;
   }
 
   // end the voting period
-  function endVoting() restricted() votingPeriod() public {
+  function endVoting(string privateKey) restricted() votingPeriod() public {
     votingHasEnded = true;
+    votingPrivateKey = privateKey;
   }
 
   /* CITIZENS */
@@ -77,9 +81,8 @@ contract Vote {
     return addressEncryptedPrivateKeyMapping[addr];
   }
 
-  function submitVote(uint candidateId) votingPeriod() canVote() public {
-    require(candidateId < candidates.length);
-    candidates[candidateId].votes++;
+  function submitVote(string encryptedVote) votingPeriod() canVote() public {
+    encryptedVotes.push(encryptedVote);
     canVoteMapping[msg.sender] = false;
   }
 
