@@ -41,6 +41,59 @@ class Vote {
     })
   }
 
+  /* GOVERNMENT */
+
+  async generateEncryptedWallet (identityPublicKey) {
+    // TODO: generate a voting private key and encrypt with identityPublicKey
+    return 'snake oil'
+  }
+
+  async publishWallet (addr, encryptedPrivateKey) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    await instance.publishWallet(addr, encryptedPrivateKey, {from: accounts[0]})
+  }
+
+  async addCandidate (description, image) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    return await instance.addCandidate(description, image, {from: accounts[0]})
+  }
+
+  async beginVoting (votingAddresses) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    await instance.beginVoting(votingAddresses, {from: accounts[0]})
+  }
+
+  async endVoting () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    await instance.endVoting({from: accounts[0]})
+  }
+
+  /* CITIZENS */
+
+  async getWallet () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    return await instance.getWallet({from: accounts[0]})
+  }
+
+  async submitVote () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    return await instance.submitVote({from: accounts[0]})
+  }
+
+  /* ANYBODY */
+
   async getCandidates () {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
@@ -52,13 +105,6 @@ class Vote {
     }
 
     return candidates
-  }
-
-  async addCandidate (description, image) {
-    const instance = await this.contract.deployed()
-    const accounts = await this.web3.eth.getAccounts()
-
-    await instance.addCandidate(description, image, {from: accounts[0]})
   }
 }
 
