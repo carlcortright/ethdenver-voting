@@ -1,0 +1,32 @@
+.DS_Store
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+{{#unit}}
+test/unit/coverage
+{{/unit}}
+{{#e2e}}
+test/e2e/reports
+selenium-debug.log
+{{/e2e}}
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# LaTeX temporary files
+docs/**/*.aux
+docs/**/*.fdb_latexmk
+docs/**/*.fls
+docs/**/*.log
+docs/**/*.synctex.gz
+docs/tex/**/*.pdf
+
+# Default Truffle build dir
+build/contracts
