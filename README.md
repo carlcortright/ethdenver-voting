@@ -1,6 +1,6 @@
 # Voting on the Blockchain
 
-Created for the ethdenver hackathon, 2/16-18/2018 by Carl Cortright, Gerard Casasaez, Scott Street
+Created for the ethdenver hackathon, 2/16-18/2018 by Carl Cortright, Gerard Casasaez, and Scott Street
 
 ## The Problem 
 
