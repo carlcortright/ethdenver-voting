@@ -86,6 +86,13 @@ contract Vote {
     canVoteMapping[msg.sender] = false;
   }
 
+  function canVote(address addr) public view returns (bool isVoteAvailable) {
+    if (!votingHasStarted || votingHasEnded) {
+      return false;
+    }
+    return canVoteMapping[addr];
+  }
+
   /* ANYBODY */
 
   function getNumberOfCandidates() public view returns (uint numberOfCandidates) {

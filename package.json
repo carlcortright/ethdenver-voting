@@ -5,11 +5,11 @@
   "author": "People",
   "private": true,
   "scripts": {
-    "predev":"npm run build && npm run contract",
+    "predev": "npm run build && npm run contract",
     "dev": "npm-run-all -p server migrate",
     "server": "node build/dev-server.js",
     "migrate": "truffle migrate",
-    "postmigrate":"npm run contract-sync-dist",
+    "postmigrate": "npm run contract-sync-dist",
     "start": "npm run dev",
     "build": "node build/build.js",
     "contract": "truffle compile && npm run contract-sync-dist",
@@ -21,6 +21,7 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
+    "node-rsa": "^0.4.2",
     "truffle-contract": "^3.0.1",
     "vue": "^2.5.13",
     "vue-router": "^2.7.0",
