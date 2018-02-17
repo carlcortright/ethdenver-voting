@@ -118,11 +118,18 @@ class Vote {
       nonce: 'TODO'
     }
 
-    let encryptedVote = JSON.stringify(vote)
+    vote = JSON.stringify(vote)
     console.log(votingPublicKey)
-    // TODO: encrypt with votingPublicKey
 
-    await instance.submitVote(encryptedVote, {from: accounts[0]})
+    let votingKey = new NodeRSA()
+    votingKey.importKey(votingPublicKey, 'public')
+    let encryptedVote = votingKey.encrypt(vote)
+
+    let citizenKey = new NodeRSA(this.privKey)
+    const wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
+    const voteAddress = citizenKey.decrypt(wallet)
+
+    await instance.submitVote(encryptedVote, {from: voteAddress})
   }
 
   async publishedWallet () {

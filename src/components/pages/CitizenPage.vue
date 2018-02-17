@@ -2,8 +2,12 @@
   <div>
     <div v-if="!walletPublished">
       Wallet has not been created. Show this QR code to an administrator.
-      <img src="http://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=">
+      <img :src="imgSrc">
     </div>
+    <div v-else-if="!canVote">
+      Vote has not been enabled yet.
+    </div>
+
     <ol>
       <li v-for="cand in candidates">
         {{ cand.description }}
