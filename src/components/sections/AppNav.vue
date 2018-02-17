@@ -11,7 +11,7 @@
         <b-navbar-nav class="ml-auto">
 
         <b-nav-form>
-            <b-button size="md" type="submit"><i class="fa fa-plus"></i> Register New Voter</b-button>
+            <b-button size="md"><i class="fa fa-plus"></i> Register New Voter</b-button>
         </b-nav-form>
 
         </b-navbar-nav>
