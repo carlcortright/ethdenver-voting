@@ -1,10 +1,21 @@
 import Web3 from 'web3'
 import TruffleContract from 'truffle-contract'
 import VoteJSON from '../../dist/contracts/Vote.json'
+import NodeRSA from 'node-rsa'
 
 // const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 class Vote {
+  /**
+   * Citizen private key
+   */
+  privKey
+
+  /**
+   * Citizen public key
+   */
+  pubKey
+
   /**
    * Web3 instance.
    */
@@ -39,6 +50,16 @@ class Vote {
     this.contract.defaults({
       gas: 900000
     })
+
+    // RSA key generation
+    this.privKey = window.localStorage.getItem('privateKey')
+    if (this.privKey == null) {
+      let key = new NodeRSA({b: 512})
+      window.localStorage.setItem('privateKey', key.exportKey('private'))
+      this.privKey = key.exportKey('private')
+      window.localStorage.setItem('publicKey', key.exportKey('public'))
+    }
+    this.pubKey = window.localStorage.getItem('publicKey')
   }
 
   /* GOVERNMENT */
@@ -82,7 +103,7 @@ class Vote {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
 
-    return await instance.getWallet({from: accounts[0]})
+    return await instance.getWallet(accounts[0], {from: accounts[0]})
   }
 
   async submitVote (candidateId) {
@@ -102,6 +123,23 @@ class Vote {
     // TODO: encrypt with votingPublicKey
 
     await instance.submitVote(encryptedVote, {from: accounts[0]})
+  }
+
+  async publishedWallet () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+    let wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
+    console.log(wallet)
+    return wallet
+  }
+
+  async canVote () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+    if (await !this.publishedWallet()) {
+      return false
+    }
+    return await instance.isVoteAvailable(accounts[0], {from: accounts[0]})
   }
 
   /* ANYBODY */
