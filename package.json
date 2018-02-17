@@ -9,6 +9,7 @@
     "dev": "npm-run-all -p server migrate",
     "server": "node build/dev-server.js",
     "migrate": "truffle migrate",
+    "postmigrate":"npm run contract-sync-dist",
     "start": "npm run dev",
     "build": "node build/build.js",
     "contract": "truffle compile && npm run contract-sync-dist",
