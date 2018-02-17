@@ -41,9 +41,17 @@ class Vote {
     })
   }
 
-  async todoFunction () {
-    // const instance = await this.contract.deployed()
-    // await instance.methodName(args, {from: accounts[0]})
+  async getCandidates () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+    let numberOfCandidates = await instance.getNumberOfCandidates({from: accounts[0]})
+    let candidates = []
+
+    for (var candidateId in numberOfCandidates.toNumber()) {
+      candidates.push(await instance.getCandidate(candidateId, {from: accounts[0]}))
+    }
+
+    return candidates
   }
 }
 

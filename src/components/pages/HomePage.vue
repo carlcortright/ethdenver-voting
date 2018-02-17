@@ -9,17 +9,18 @@
 export default {
   name: 'home-page',
   data () {
+    this.test()
     return {}
   },
   components: {
   },
   methods: {
-    sampleMethod () {
-      // this.$vote.exampleMethod(args).then(() => {
-      //   //
-      // }).catch(error => {
-      //   // show error.message
-      // })
+    test () {
+      this.$vote.getCandidates().then((candidates) => {
+        console.log(candidates)
+      }).catch(error => {
+        console.error(error)
+      })
     }
   }
 }
