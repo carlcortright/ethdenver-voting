@@ -9,8 +9,8 @@
     </div>
 
     <ol>
-      <li v-for="cand in candidates">
-        {{ cand.description }}
+      <li v-for="(cand,cId) in candidates">
+        {{ cand.description }}<a v-if="canVote" href="#" v-on:click="vote(cId)">Vote</a>
       </li>
     </ol>
   </div>
@@ -24,6 +24,7 @@
         'candidates': [],
         'walletPublished': false,
         'canVote': false,
+        'voted': true,
         'imgSrc': 'http://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=' + this.$vote.pubKey
       }
     },
@@ -39,7 +40,13 @@
       })
     },
     components: {},
-    methods: {}
+    methods: {
+      vote: function (cId) {
+        this.$vote.submitVote(cId).then(() => {
+          alert('Voted!')
+        })
+      }
+    }
   }
 </script>
 
