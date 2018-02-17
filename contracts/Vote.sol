@@ -12,6 +12,7 @@ contract Vote {
   // for storing a potential candidate
   struct Candidate {
     string description;
+    string image; // base64 encoded (small!) image
     uint votes;
   }
 
@@ -43,23 +44,26 @@ contract Vote {
   /* GOVERNMENT */
 
   // publish the encrypted voting wallet for a given citizen address
-  function publishWallet(address addr, address votingAddr, string encryptedPrivateKey) restricted() preVotingPeriod() public {
+  function publishWallet(address addr, string encryptedPrivateKey) restricted() preVotingPeriod() public {
     addressEncryptedPrivateKeyMapping[addr] = encryptedPrivateKey;
-    canVoteMapping[votingAddr] = true;
   }
 
   // add a new candidate
-  function addCandidate(string description) restricted() preVotingPeriod() public returns (uint candidateId) {
+  function addCandidate(string description, string image) restricted() preVotingPeriod() public returns (uint candidateId) {
     candidateId = candidates.length++;
     Candidate storage c = candidates[candidateId];
     c.description = description;
+    c.image = image;
     c.votes = 0;
     return candidateId;
   }
 
   // begin the voting period
-  function beginVoting() restricted() preVotingPeriod() public {
+  function beginVoting(address[] votingAddresses) restricted() preVotingPeriod() public {
     votingHasStarted = true;
+    for (uint i = 0; i < votingAddresses.length; i++) {
+      canVoteMapping[votingAddresses[i]] = true;
+    }
   }
 
   // end the voting period

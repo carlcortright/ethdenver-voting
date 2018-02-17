@@ -53,6 +53,13 @@ class Vote {
 
     return candidates
   }
+
+  async addCandidate (description, image) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    await instance.addCandidate(description, image, {from: accounts[0]})
+  }
 }
 
 // class Web3Error extends Error {
