@@ -5,7 +5,10 @@
   "author": "People",
   "private": true,
   "scripts": {
-    "dev": "node build/dev-server.js",
+    "predev":"npm run build && npm run contract",
+    "dev": "npm-run-all -p server migrate",
+    "server": "node build/dev-server.js",
+    "migrate": "truffle migrate",
     "start": "npm run dev",
     "build": "node build/build.js",
     "contract": "truffle compile && npm run contract-sync-dist",
@@ -93,7 +96,8 @@
     "webpack-bundle-analyzer": "^2.9.0",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-hot-middleware": "^2.19.1",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "npm-run-all": "^4.0.1"
   },
   "engines": {
     "node": ">= 4.0.0",
