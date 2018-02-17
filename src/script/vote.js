@@ -1,10 +1,21 @@
 import Web3 from 'web3'
 import TruffleContract from 'truffle-contract'
 import VoteJSON from '../../dist/contracts/Vote.json'
+import NodeRSA from 'node-rsa'
 
 // const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 class Vote {
+  /**
+   * Citizen private key
+   */
+  privKey
+
+  /**
+   * Citizen public key
+   */
+  pubKey
+
   /**
    * Web3 instance.
    */
@@ -39,7 +50,106 @@ class Vote {
     this.contract.defaults({
       gas: 900000
     })
+
+    // RSA key generation
+    this.privKey = window.localStorage.getItem('privateKey')
+    if (this.privKey == null) {
+      let key = new NodeRSA({b: 512})
+      window.localStorage.setItem('privateKey', key.exportKey('private'))
+      this.privKey = key.exportKey('private')
+      window.localStorage.setItem('publicKey', key.exportKey('public'))
+    }
+    this.pubKey = window.localStorage.getItem('publicKey')
   }
+
+  /* GOVERNMENT */
+
+  async generateEncryptedWallet (identityPublicKey) {
+    // TODO: generate a voting private key and encrypt with identityPublicKey
+    return 'snake oil'
+  }
+
+  async publishWallet (addr, encryptedPrivateKey) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    await instance.publishWallet(addr, encryptedPrivateKey, {from: accounts[0]})
+  }
+
+  async addCandidate (description, image) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    return await instance.addCandidate(description, image, {from: accounts[0]})
+  }
+
+  async beginVoting (votingAddresses) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    await instance.beginVoting(votingAddresses, {from: accounts[0]})
+  }
+
+  async endVoting () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    await instance.endVoting({from: accounts[0]})
+  }
+
+  /* CITIZENS */
+
+  async getWallet () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+
+    return await instance.getWallet(accounts[0], {from: accounts[0]})
+  }
+
+  async submitVote (candidateId) {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+    const votingPublicKey = await instance.votingPublicKey() // TODO: does this work?
+
+    // TODO: generate nonce
+
+    let vote = {
+      choice: candidateId,
+      nonce: 'TODO'
+    }
+
+    vote = JSON.stringify(vote)
+    console.log(votingPublicKey)
+
+    let votingKey = new NodeRSA()
+    votingKey.importKey(votingPublicKey, 'public')
+    let encryptedVote = votingKey.encrypt(vote)
+
+    let citizenKey = new NodeRSA(this.privKey)
+    const wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
+    const voteAddress = citizenKey.decrypt(wallet)
+
+    await instance.submitVote(encryptedVote, {from: voteAddress})
+  }
+
+  async publishedWallet () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+    let wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
+    console.log(wallet)
+    return wallet
+  }
+
+  async canVote () {
+    const instance = await this.contract.deployed()
+    const accounts = await this.web3.eth.getAccounts()
+    if (await !this.publishedWallet()) {
+      return false
+    }
+    return await instance.isVoteAvailable(accounts[0], {from: accounts[0]})
+  }
+
+  /* ANYBODY */
 
   async getCandidates () {
     const instance = await this.contract.deployed()
@@ -52,6 +162,18 @@ class Vote {
     }
 
     return candidates
+  }
+
+  async getVotes () {
+    const instance = await this.contract.deployed()
+    const votingPrivateKey = await instance.votingPrivateKey() // TODO: does this work?
+
+    let encryptedVotes = await instance.encryptedVotes() // TODO: does this work?
+    // TODO: decrypt votes
+    console.log(encryptedVotes, votingPrivateKey)
+    let votes = []
+
+    return votes
   }
 }
 

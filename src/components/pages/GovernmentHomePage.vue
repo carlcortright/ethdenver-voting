@@ -35,5 +35,6 @@ export default {
 <style lang="scss" scoped>
 .fill-container {
   height: 100%;
+  width: 100%;
 }
 </style>
