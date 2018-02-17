@@ -1,11 +1,10 @@
 <template>
-  <div>
-    <h1>TODO</h1>
-    <p>Make it work.</p>
-  </div>
+    <AppNav></AppNav>
 </template>
 
 <script>
+import AppNav from '../sections/AppNav.vue'
+
 export default {
   name: 'home-page',
   data () {
@@ -13,6 +12,7 @@ export default {
     return {}
   },
   components: {
+    'AppNav': AppNav
   },
   methods: {
     test () {
