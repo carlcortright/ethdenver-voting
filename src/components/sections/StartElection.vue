@@ -4,8 +4,8 @@
             <h1>Start a New Election</h1>
             <div class="row">
               <b-form role="form"  autocomplete="off" class="col-md-6">
-                <h3>Election Name</h3>
-                <b-input type="text" placeholder="ex Midterm Elections 2018" require></b-input>
+                <!--<h3>Election Name</h3>-->
+                <!--<b-input type="text" placeholder="ex Midterm Elections 2018" require></b-input>-->
                 <h3>Add Candidates</h3>
                 <div class="entry input-group col-xs-3" v-for="candidate, i in candidates">
                   <input class="form-control" name="fields[]" type="text" placeholder="Candidate Name" v-model="candidate.description"/>
@@ -21,7 +21,7 @@
               </b-form>
             </div>
             <br>
-            <b-button class="btn-success" v-on:click="startElection" type="submit">Create Election</b-button>
+            <slot></slot>
         </div>
     </div>
 </template>
@@ -39,14 +39,6 @@ export default {
     }
   },
   methods: {
-    startElection () {
-      (async () => {
-        for (let candidate of this.candidates) {
-          await this.$vote.addCandidate(candidate.description, 'asd')
-        }
-        await this.$vote.beginVoting()
-      })()
-    },
     addCandidate () {
       this.candidates.push({description: ''})
     },
