@@ -10,7 +10,7 @@
 
     <ol>
       <li v-for="(cand,cId) in candidates">
-        {{ cand.description }}<a v-if="canVote" href="#" v-on:click="vote(cId)">Vote</a>
+        {{ cand.description }}<a v-if="canVote && !voted" href="#" v-on:click="vote(cId)">Vote</a>
       </li>
     </ol>
   </div>
@@ -24,7 +24,7 @@
         'candidates': [],
         'walletPublished': false,
         'canVote': false,
-        'voted': true,
+        'voted': false,
         'imgSrc': 'http://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=' + this.$vote.pubKey
       }
     },
@@ -44,6 +44,7 @@
       vote: function (cId) {
         this.$vote.submitVote(cId).then(() => {
           alert('Voted!')
+          this.voted = true
         })
       }
     }
