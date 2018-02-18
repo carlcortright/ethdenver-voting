@@ -72,7 +72,7 @@ class Vote {
     if (typeof content === Array) {
       content = Vote.fromAddrToString(content)
     }
-    return Vote.fromAddrToString(key.encrypt(content))
+    return key.encrypt(content, 'base64')
   }
 
   decrypt (content, privateKey) {
@@ -83,7 +83,7 @@ class Vote {
     if (typeof content === Array) {
       content = Vote.fromAddrToString(content)
     }
-    return key.decrypt(content)
+    return atob(key.decrypt(content, 'base64'))
   }
 
   static fromAddrToString (arr) {
@@ -112,7 +112,7 @@ class Vote {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
     const encryptedPrivateKey = this.generateEncryptedWallet(identityPublicKey)
-    await instance.publishWallet(identityPublicKey, Vote.fromAddrToString(encryptedPrivateKey), {from: accounts[0]})
+    await instance.publishWallet(identityPublicKey, encryptedPrivateKey, {from: accounts[0]})
   }
 
   async addCandidate (description, image) {
@@ -163,8 +163,8 @@ class Vote {
     let encryptedVote = this.encrypt(vote, votingPublicKey)
 
     let wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
-    wallet = this.decrypt(Vote.fromStringtoArr(wallet))
-    const privateKey = Vote.fromStringtoAddr(Vote.fromAddrToString(wallet))
+    let privateKey = this.decrypt(wallet)
+    privateKey = Vote.fromStringtoAddr(privateKey)
     const contract = new this.web3.eth.Contract(this.contract.abi)
     const data = contract.methods.submitVote(encryptedVote).encodeABI()
 
@@ -176,7 +176,7 @@ class Vote {
     }
 
     const tx = new EthereumTx(txParams)
-    tx.sign(privateKey)
+    tx.sign(Buffer.from(privateKey))
     const stx = tx.serialize()
 
     return await this.web3.eth.sendRawTransaction('0x' + stx.toString('hex'))
