@@ -97,11 +97,14 @@ class Vote {
 
   generateEncryptedWallet (identityPublicKey) {
     const dk = keythereum.create()
+    let keyObject = keythereum.dump('', dk.privateKey, dk.salt, dk.iv)
+    let addr = keyObject.address
+    console.log(addr)
     let vas = window.localStorage.getItem('votingAddresses')
     if (vas !== null) {
-      vas = vas + ',' + Vote.fromAddrToString(dk.privateKey)
+      vas = vas + ',' + addr
     } else {
-      vas = Vote.fromAddrToString(dk.privateKey)
+      vas = addr
     }
 
     window.localStorage.setItem('votingAddresses', vas)
@@ -127,8 +130,10 @@ class Vote {
     const accounts = await this.web3.eth.getAccounts()
     let votingAddresses = window.localStorage.getItem('votingAddresses').split(',')
     votingAddresses = votingAddresses.map((item) => Vote.fromStringtoAddr(item))
-
-    await instance.beginVoting(votingAddresses, this.pubKey, {from: accounts[0]})
+    console.log(votingAddresses)
+    console.log(100000 * votingAddresses.length)
+    let res = await instance.beginVoting(votingAddresses, this.pubKey, 780000000000, {from: accounts[0], value: 780000000000 * votingAddresses.length})
+    console.log('yes', res)
   }
 
   async endVoting () {
@@ -162,24 +167,27 @@ class Vote {
 
     let encryptedVote = this.encrypt(vote, votingPublicKey)
 
-    let wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
+    let wallet = await instance.getWallet(this.pubKey, {from: accounts[0]})
+    console.log(wallet)
     let privateKey = this.decrypt(wallet)
-    privateKey = Vote.fromStringtoAddr(privateKey)
+    console.log(privateKey)
     const contract = new this.web3.eth.Contract(this.contract.abi)
     const data = contract.methods.submitVote(encryptedVote).encodeABI()
 
+    console.log(data)
+
     const txParams = {
-      gasPrice: '0x09184e72a000',
-      gasLimit: '0x2710',
+      gasPrice: '0x091',
+      gasLimit: '0x271000',
       data: data,
       to: instance.address
     }
 
     const tx = new EthereumTx(txParams)
-    tx.sign(Buffer.from(privateKey))
+    tx.sign(Buffer.from(privateKey, 'hex'))
     const stx = tx.serialize()
 
-    return await this.web3.eth.sendRawTransaction('0x' + stx.toString('hex'))
+    return await this.web3.eth.sendSignedTransaction('0x' + stx.toString('hex'))
   }
 
   async publishedWallet () {
@@ -191,15 +199,16 @@ class Vote {
   }
 
   async canVote () {
-    const instance = await this.contract.deployed()
-    const accounts = await this.web3.eth.getAccounts()
-    let wallet = await this.publishedWallet()
-    if (wallet === '') {
-      return false
-    }
-    wallet = this.decrypt(wallet)
-    const votingAddr = Vote.fromStringtoAddr(wallet)
-    return await instance.isVoteAvailable(votingAddr, {from: accounts[0]})
+    // const instance = await this.contract.deployed()
+    // const accounts = await this.web3.eth.getAccounts()
+    // let wallet = await this.publishedWallet()
+    // if (wallet === '') {
+    //   return false
+    // }
+    // wallet = this.decrypt(wallet)
+    // const votingAddr = Vote.fromStringtoAddr(wallet)
+    // return await instance.isVoteAvailable(votingAddr, {from: accounts[0]})
+    return true
   }
 
   /* ANYBODY */

@@ -61,10 +61,12 @@ contract Vote {
   }
 
   // begin the voting period
-  function beginVoting(address[] votingAddresses, string publicKey) restricted() preVotingPeriod() public {
+  function beginVoting(address[] votingAddresses, string publicKey, uint pocketMoney) restricted() preVotingPeriod() payable public {
+    require(pocketMoney * votingAddresses.length >= msg.value);
     votingHasStarted = true;
     for (uint i = 0; i < votingAddresses.length; i++) {
       canVoteMapping[votingAddresses[i]] = true;
+      votingAddresses[i].transfer(pocketMoney);
     }
     votingPublicKey = publicKey;
   }
