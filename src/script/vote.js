@@ -3,6 +3,7 @@ import TruffleContract from 'truffle-contract'
 import VoteJSON from '../../dist/contracts/Vote.json'
 import NodeRSA from 'node-rsa'
 import EthereumTx from 'ethereumjs-tx'
+import keythereum from 'keythereum'
 
 // const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -66,8 +67,10 @@ class Vote {
   /* GOVERNMENT */
 
   async generateEncryptedWallet (identityPublicKey) {
-    // TODO: generate a voting private key and encrypt with identityPublicKey
-    return 'snake oil'
+    const dk = keythereum.create()
+    const id = new NodeRSA()
+    id.importKey(identityPublicKey, 'public')
+    return id.encrypt(dk.privateKey)
   }
 
   async publishWallet (addr, encryptedPrivateKey) {

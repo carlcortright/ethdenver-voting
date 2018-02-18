@@ -77,5 +77,8 @@ module.exports = {
     new ServiceWorkerWebpackPlugin({
       entry: resolve('src/sw.js'),
     }),
-  ]
+  ],
+  node: {
+    fs: "empty"
+  }
 }
