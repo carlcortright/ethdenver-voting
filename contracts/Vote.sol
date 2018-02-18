@@ -99,8 +99,9 @@ contract Vote {
     return candidates.length;
   }
 
-  function getCandidate(uint candidateId) public view returns (Candidate candidate) {
+  function getCandidate(uint candidateId) public view returns (string description, string image) {
     require(candidateId < candidates.length);
-    return candidates[candidateId];
+    Candidate c = candidates[candidateId];
+    return (c.description, c.image);
   }
 }

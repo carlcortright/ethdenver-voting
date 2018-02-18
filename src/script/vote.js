@@ -172,8 +172,12 @@ class Vote {
     let numberOfCandidates = await instance.getNumberOfCandidates({from: accounts[0]})
     let candidates = []
 
-    for (var candidateId in numberOfCandidates.toNumber()) {
-      candidates.push(await instance.getCandidate(candidateId, {from: accounts[0]}))
+    for (let i = 0; i < numberOfCandidates.toNumber(); i++) {
+      let c = await instance.getCandidate(i, {from: accounts[0]})
+      candidates.push({
+        description: c[0],
+        image: c[1]
+      })
     }
 
     return candidates
