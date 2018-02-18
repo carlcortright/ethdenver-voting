@@ -34,7 +34,7 @@
         'walletPublished': false,
         'canVote': false,
         'voted': false,
-        'imgSrc': 'http://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=' + this.$vote.pubKey
+        'imgSrc': 'http://chart.googleapis.com/chart?cht=qr&chs=350x350&chl=' + encodeURIComponent(this.$vote.pubKey)
       }
     },
     mounted () {

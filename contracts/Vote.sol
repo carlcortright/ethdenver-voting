@@ -86,7 +86,7 @@ contract Vote {
     canVoteMapping[msg.sender] = false;
   }
 
-  function isVoteAvailable(address addr) public view returns (bool isVoteAvailable) {
+  function isVoteAvailable(address addr) public view returns (bool available) {
     if (!votingHasStarted || votingHasEnded) {
       return false;
     }

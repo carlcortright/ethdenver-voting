@@ -27,9 +27,7 @@ export default {
     'StartElection': StartElection
   },
   methods: {
-    onDecode (content) {
-      this.$vote.publishWallet(content)
-    }
+
   }
 }
 </script>

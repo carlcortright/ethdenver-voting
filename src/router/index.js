@@ -16,7 +16,7 @@ export default new Router({
       component: HomePage
     }, {
       path: '/government',
-      name: 'government portal',
+      name: 'gov',
       component: GovernmentHomePage
     }, {
       path: '/government/qr',

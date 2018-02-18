@@ -11,6 +11,7 @@
 
 <script>
   import AppNav from '../sections/AppNav.vue'
+  import router from '../../router/index.js'
 
   export default {
     name: 'home-page',
@@ -23,7 +24,9 @@
     },
     methods: {
       onDecode (content) {
+        content = decodeURIComponent(content)
         console.log(content)
+        this.$vote.publishWallet(content).then(()=>{router.push({'name': 'gov'})})
       }
     }
   }

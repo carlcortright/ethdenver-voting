@@ -4,6 +4,7 @@ import VoteJSON from '../../dist/contracts/Vote.json'
 import NodeRSA from 'node-rsa'
 import EthereumTx from 'ethereumjs-tx'
 import keythereum from 'keythereum'
+import crypto from 'crypto'
 
 // const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -55,6 +56,7 @@ class Vote {
 
     // RSA key generation
     this.privKey = window.localStorage.getItem('privateKey')
+    // this.privKey = null
     if (this.privKey == null) {
       let key = new NodeRSA({b: 512})
       window.localStorage.setItem('privateKey', key.exportKey('private'))
@@ -64,20 +66,27 @@ class Vote {
     this.pubKey = window.localStorage.getItem('publicKey')
   }
 
+  static encrypt (content, publicKey = this.pubKey) {
+    let key = new NodeRSA(Buffer.from(publicKey), 'public')
+    return key.encrypt(Buffer.from(content))
+  }
+
+  static decrypt (content, privateKey = this.privKey) {
+    let key = new NodeRSA(Buffer.from(privateKey), 'private')
+    return key.decrypt(Buffer.from(content))
+  }
   /* GOVERNMENT */
 
   static generateEncryptedWallet (identityPublicKey) {
     const dk = keythereum.create()
-    const id = new NodeRSA()
-    id.importKey(identityPublicKey, 'public')
-    return id.encrypt(dk.privateKey)
+    return Vote.encrypt(dk.privateKey, identityPublicKey)
   }
 
   async publishWallet (identityPublicKey) {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
     const encryptedPrivateKey = Vote.generateEncryptedWallet(identityPublicKey)
-    await instance.publishWallet(identityPublicKey, encryptedPrivateKey, {from: accounts[0]})
+    await instance.publishWallet(identityPublicKey, encryptedPrivateKey.toString(), {from: accounts[0]})
   }
 
   async addCandidate (description, image) {
@@ -126,13 +135,10 @@ class Vote {
     vote = JSON.stringify(vote)
     console.log(votingPublicKey)
 
-    let votingKey = new NodeRSA()
-    votingKey.importKey(votingPublicKey, 'public')
-    let encryptedVote = votingKey.encrypt(vote)
+    let encryptedVote = Vote.encrypt(vote, votingPublicKey)
 
-    let citizenKey = new NodeRSA(this.privKey)
     const wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
-    const privateKey = Buffer.from(citizenKey.decrypt(wallet), 'hex')
+    const privateKey = Buffer.from(Vote.decrypt(wallet), 'hex')
     const contract = new this.web3.eth.Contract(this.contract.abi)
     const data = contract.methods.submitVote(encryptedVote).encodeABI()
 
@@ -165,8 +171,7 @@ class Vote {
     if (!wallet) {
       return false
     }
-    let citizenKey = new NodeRSA(this.privKey)
-    return await instance.isVoteAvailable(citizenKey.decrypt(wallet), {from: accounts[0]})
+    return await instance.isVoteAvailable(Vote.decrypt(wallet), {from: accounts[0]})
   }
 
   /* ANYBODY */
