@@ -2,6 +2,7 @@ import Web3 from 'web3'
 import TruffleContract from 'truffle-contract'
 import VoteJSON from '../../dist/contracts/Vote.json'
 import NodeRSA from 'node-rsa'
+import EthereumTx from 'ethereumjs-tx'
 
 // const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
@@ -127,9 +128,22 @@ class Vote {
 
     let citizenKey = new NodeRSA(this.privKey)
     const wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
-    const voteAddress = citizenKey.decrypt(wallet)
+    const privateKey = Buffer.from(citizenKey.decrypt(wallet), 'hex')
+    const contract = new this.web3.eth.Contract(this.contract.abi)
+    const data = contract.methods.submitVote(encryptedVote).encodeABI()
 
-    await instance.submitVote(encryptedVote, {from: voteAddress})
+    const txParams = {
+      gasPrice: '0x09184e72a000',
+      gasLimit: '0x2710',
+      data: data,
+      to: instance.address
+    }
+
+    const tx = new EthereumTx(txParams)
+    tx.sign(privateKey)
+    const stx = tx.serialize()
+
+    return await this.web3.eth.sendRawTransaction('0x' + stx.toString('hex'))
   }
 
   async publishedWallet () {
