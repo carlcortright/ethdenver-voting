@@ -55,7 +55,6 @@ class Vote {
 
     // RSA key generation
     this.privKey = window.localStorage.getItem('privateKey')
-    // this.privKey = null
     if (this.privKey == null) {
       let key = new NodeRSA({b: 512})
       window.localStorage.setItem('privateKey', key.exportKey('private'))
@@ -65,27 +64,55 @@ class Vote {
     this.pubKey = window.localStorage.getItem('publicKey')
   }
 
-  static encrypt (content, publicKey = this.pubKey) {
-    let key = new NodeRSA(Buffer.from(publicKey), 'public')
-    return key.encrypt(Buffer.from(content))
+  encrypt (content, publicKey) {
+    if (publicKey === undefined) {
+      publicKey = this.pubKey
+    }
+    let key = new NodeRSA(publicKey, 'public')
+    if (typeof content === Array) {
+      content = Vote.fromAddrToString(content)
+    }
+    return Vote.fromAddrToString(key.encrypt(content))
   }
 
-  static decrypt (content, privateKey = this.privKey) {
-    let key = new NodeRSA(Buffer.from(privateKey), 'private')
-    return key.decrypt(Buffer.from(content))
+  decrypt (content, privateKey) {
+    if (privateKey === undefined) {
+      privateKey = this.privKey
+    }
+    let key = new NodeRSA(privateKey, 'private')
+    if (typeof content === Array) {
+      content = Vote.fromAddrToString(content)
+    }
+    return key.decrypt(content)
+  }
+
+  static fromAddrToString (arr) {
+    return Buffer.from(arr).toString('hex')
+  }
+
+  static fromStringtoAddr (text) {
+    return '0x' + text
   }
   /* GOVERNMENT */
 
-  static generateEncryptedWallet (identityPublicKey) {
+  generateEncryptedWallet (identityPublicKey) {
     const dk = keythereum.create()
-    return Vote.encrypt(dk.privateKey, identityPublicKey)
+    let vas = window.localStorage.getItem('votingAddresses')
+    if (vas !== null) {
+      vas = vas + ',' + Vote.fromAddrToString(dk.privateKey)
+    } else {
+      vas = Vote.fromAddrToString(dk.privateKey)
+    }
+
+    window.localStorage.setItem('votingAddresses', vas)
+    return this.encrypt(Vote.fromAddrToString(dk.privateKey), identityPublicKey)
   }
 
   async publishWallet (identityPublicKey) {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
-    const encryptedPrivateKey = Vote.generateEncryptedWallet(identityPublicKey)
-    await instance.publishWallet(identityPublicKey, encryptedPrivateKey.toString(), {from: accounts[0]})
+    const encryptedPrivateKey = this.generateEncryptedWallet(identityPublicKey)
+    await instance.publishWallet(identityPublicKey, Vote.fromAddrToString(encryptedPrivateKey), {from: accounts[0]})
   }
 
   async addCandidate (description, image) {
@@ -98,9 +125,8 @@ class Vote {
   async beginVoting () {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
-
-    // TODO: get addresses (from localstorage?)
-    const votingAddresses = []
+    let votingAddresses = window.localStorage.getItem('votingAddresses').split(',')
+    votingAddresses = votingAddresses.map((item) => Vote.fromStringtoAddr(item))
 
     await instance.beginVoting(votingAddresses, this.pubKey, {from: accounts[0]})
   }
@@ -134,10 +160,11 @@ class Vote {
     vote = JSON.stringify(vote)
     console.log(votingPublicKey)
 
-    let encryptedVote = Vote.encrypt(vote, votingPublicKey)
+    let encryptedVote = this.encrypt(vote, votingPublicKey)
 
-    const wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
-    const privateKey = Buffer.from(Vote.decrypt(wallet), 'hex')
+    let wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
+    wallet = this.decrypt(Vote.fromStringtoArr(wallet))
+    const privateKey = Vote.fromStringtoAddr(Vote.fromAddrToString(wallet))
     const contract = new this.web3.eth.Contract(this.contract.abi)
     const data = contract.methods.submitVote(encryptedVote).encodeABI()
 
@@ -166,11 +193,13 @@ class Vote {
   async canVote () {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
-    const wallet = await this.publishedWallet()
-    if (!wallet) {
+    let wallet = await this.publishedWallet()
+    if (wallet === '') {
       return false
     }
-    return await instance.isVoteAvailable(Vote.decrypt(wallet), {from: accounts[0]})
+    wallet = this.decrypt(wallet)
+    const votingAddr = Vote.fromStringtoAddr(wallet)
+    return await instance.isVoteAvailable(votingAddr, {from: accounts[0]})
   }
 
   /* ANYBODY */
