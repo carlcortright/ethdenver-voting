@@ -115,11 +115,9 @@ class Vote {
     const accounts = await this.web3.eth.getAccounts()
     const votingPublicKey = await instance.votingPublicKey() // TODO: does this work?
 
-    // TODO: generate nonce
-
     let vote = {
       choice: candidateId,
-      nonce: 'TODO'
+      nonce: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
     }
 
     vote = JSON.stringify(vote)
