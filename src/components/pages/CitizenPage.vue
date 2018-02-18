@@ -1,5 +1,9 @@
 <template>
+
   <div>
+    <AppNav>
+
+    </AppNav>
     <div v-if="!walletPublished">
       Wallet has not been created. Show this QR code to an administrator.
       <img :src="imgSrc">
@@ -17,6 +21,8 @@
 </template>
 
 <script>
+  import AppNav from '../sections/AppNav.vue'
+
   export default {
     name: 'citizen',
     data () {
@@ -39,7 +45,9 @@
         this.walletPublished = pWallet
       })
     },
-    components: {},
+    components: {
+      'AppNav': AppNav
+    },
     methods: {
       vote: function (cId) {
         this.$vote.submitVote(cId).then(() => {
