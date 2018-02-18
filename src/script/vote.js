@@ -91,14 +91,14 @@ class Vote {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
 
-    await instance.beginVoting(votingAddresses, {from: accounts[0]})
+    await instance.beginVoting(votingAddresses, this.pubKey, {from: accounts[0]})
   }
 
   async endVoting () {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
 
-    await instance.endVoting({from: accounts[0]})
+    await instance.endVoting(this.privKey, {from: accounts[0]})
   }
 
   /* CITIZENS */
