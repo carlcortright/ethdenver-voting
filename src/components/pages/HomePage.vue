@@ -1,5 +1,8 @@
 <template>
   <div class="fill-container">
+    <AppNav>
+
+    </AppNav>
     <div class="row fill-container">
       <div class="col-md-6 fill-container">
       <div class="half-screen fill-container">
@@ -16,23 +19,17 @@
 </template>
 
 <script>
+import AppNav from '../sections/AppNav.vue'
 
 export default {
   name: 'home-page',
   data () {
-    this.test()
     return {}
   },
   components: {
+    'AppNav': AppNav
   },
   methods: {
-    test () {
-      this.$vote.getCandidates().then((candidates) => {
-        console.log(candidates)
-      }).catch(error => {
-        console.error(error)
-      })
-    }
   }
 }
 </script>
@@ -40,7 +37,6 @@ export default {
 <style lang="scss" scoped>
 .fill-container {
   height: 100%;
-  
 }
 .half-screen {
   display: flex;

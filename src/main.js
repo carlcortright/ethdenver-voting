@@ -7,6 +7,7 @@ import router from './router'
 
 import runtime from 'serviceworker-webpack-plugin/lib/runtime'
 import VotePlugin from './plugins/VotePlugin'
+import VueQrcodeReader from 'vue-qrcode-reader'
 
 // register our serviceWorker
 if ('serviceWorker' in navigator) {
@@ -19,6 +20,7 @@ if ('serviceWorker' in navigator) {
 
 Vue.use(VotePlugin)
 Vue.use(BootstrapVue)
+Vue.use(VueQrcodeReader)
 
 Vue.config.productionTip = false
 
