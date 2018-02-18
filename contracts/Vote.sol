@@ -8,7 +8,7 @@ contract Vote {
   string public votingPrivateKey;
   Candidate[] public candidates;
 
-  mapping (address => string) addressEncryptedPrivateKeyMapping;
+  mapping (string => string) addressEncryptedPrivateKeyMapping;
   mapping (address => bool) canVoteMapping;
 
   string[] public encryptedVotes;
@@ -47,8 +47,8 @@ contract Vote {
   /* GOVERNMENT */
 
   // publish the encrypted voting wallet for a given citizen address
-  function publishWallet(address addr, string encryptedPrivateKey) restricted() preVotingPeriod() public {
-    addressEncryptedPrivateKeyMapping[addr] = encryptedPrivateKey;
+  function publishWallet(string publicKey, string encryptedPrivateKey) restricted() preVotingPeriod() public {
+    addressEncryptedPrivateKeyMapping[publicKey] = encryptedPrivateKey;
   }
 
   // add a new candidate
@@ -77,8 +77,8 @@ contract Vote {
 
   /* CITIZENS */
 
-  function getWallet(address addr) public view returns (string encryptedPrivateKey) {
-    return addressEncryptedPrivateKeyMapping[addr];
+  function getWallet(string publicKey) public view returns (string encryptedPrivateKey) {
+    return addressEncryptedPrivateKeyMapping[publicKey];
   }
 
   function submitVote(string encryptedVote) votingPeriod() canVote() public {

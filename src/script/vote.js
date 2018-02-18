@@ -66,18 +66,18 @@ class Vote {
 
   /* GOVERNMENT */
 
-  async generateEncryptedWallet (identityPublicKey) {
+  static generateEncryptedWallet (identityPublicKey) {
     const dk = keythereum.create()
     const id = new NodeRSA()
     id.importKey(identityPublicKey, 'public')
     return id.encrypt(dk.privateKey)
   }
 
-  async publishWallet (addr, encryptedPrivateKey) {
+  async publishWallet (identityPublicKey) {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
-
-    await instance.publishWallet(addr, encryptedPrivateKey, {from: accounts[0]})
+    const encryptedPrivateKey = Vote.generateEncryptedWallet(identityPublicKey)
+    await instance.publishWallet(identityPublicKey, encryptedPrivateKey, {from: accounts[0]})
   }
 
   async addCandidate (description, image) {
@@ -153,7 +153,7 @@ class Vote {
   async publishedWallet () {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
-    let wallet = await instance.getWallet(accounts[0], {from: accounts[0]})
+    let wallet = await instance.getWallet(this.pubKey, {from: accounts[0]})
     console.log(wallet)
     return wallet
   }
@@ -161,10 +161,12 @@ class Vote {
   async canVote () {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
-    if (await !this.publishedWallet()) {
+    const wallet = await this.publishedWallet()
+    if (!wallet) {
       return false
     }
-    return await instance.isVoteAvailable(accounts[0], {from: accounts[0]})
+    let citizenKey = new NodeRSA(this.privKey)
+    return await instance.isVoteAvailable(citizenKey.decrypt(wallet), {from: accounts[0]})
   }
 
   /* ANYBODY */

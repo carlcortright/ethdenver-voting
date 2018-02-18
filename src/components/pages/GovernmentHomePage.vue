@@ -28,12 +28,8 @@ export default {
   },
   methods: {
     onDecode (content) {
-      console.log(content)
-    },
-    openQR () {
-      this.qrview = true
+      this.$vote.publishWallet(content)
     }
-
   }
 }
 </script>
