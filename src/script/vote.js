@@ -87,9 +87,12 @@ class Vote {
     return await instance.addCandidate(description, image, {from: accounts[0]})
   }
 
-  async beginVoting (votingAddresses) {
+  async beginVoting () {
     const instance = await this.contract.deployed()
     const accounts = await this.web3.eth.getAccounts()
+
+    // TODO: get addresses (from localstorage?)
+    const votingAddresses = []
 
     await instance.beginVoting(votingAddresses, this.pubKey, {from: accounts[0]})
   }

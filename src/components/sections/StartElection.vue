@@ -1,24 +1,27 @@
 <template>
     <div id="mountain-background">
-        <div class="controls container-fluid"> 
+        <div class="controls container-fluid">
             <h1>Start a New Election</h1>
             <div class="row">
               <b-form role="form"  autocomplete="off" class="col-md-6">
-              <h3>Election Name</h3>
-              <b-input type="text" placeholder="ex Midterm Elections 2018" require></b-input>
-              <h3>Add Candidates</h3>
-              <div class="entry input-group col-xs-3">
-                <input class="form-control" name="fields[]" type="text" placeholder="Candidate Name" />
-                <span class="input-group-btn">
-                  <button class="btn btn-success btn-add" type="button">
-                    <i class="fa fa-plus"></i>
-                  </button>
-                </span>
-              </div>
-            </b-form>
+                <h3>Election Name</h3>
+                <b-input type="text" placeholder="ex Midterm Elections 2018" require></b-input>
+                <h3>Add Candidates</h3>
+                <div class="entry input-group col-xs-3" v-for="candidate, i in candidates">
+                  <input class="form-control" name="fields[]" type="text" placeholder="Candidate Name" v-model="candidate.description"/>
+                  <span class="input-group-btn">
+                    <button class="btn btn-success btn-add" type="button" v-on:click="addCandidate">
+                      <i class="fa fa-plus"></i>
+                    </button>
+                    <button class="btn btn-danger btn-add" type="button" v-on:click="removeCandidate" v-show="candidates.length > 1">
+                      <i class="fa fa-minus"></i>
+                    </button>
+                  </span>
+                </div>
+              </b-form>
             </div>
-          <br>
-          <b-button class="btn-success" v-on:click="startElection" type="submit">Create Election</b-button>
+            <br>
+            <b-button class="btn-success" v-on:click="startElection" type="submit">Create Election</b-button>
         </div>
     </div>
 </template>
@@ -27,30 +30,49 @@
 import $ from 'jquery'
 
 export default {
+  name: 'StartElection',
+  data () {
+    return {
+      candidates: [{
+        description: ''
+      }]
+    }
+  },
   methods: {
-    startElection: function () {
-      console.log('here')
+    startElection () {
+      (async () => {
+        for (let candidate of this.candidates) {
+          await this.$vote.addCandidate(candidate.description, 'asd')
+        }
+        await this.$vote.beginVoting()
+      })()
+    },
+    addCandidate () {
+      this.candidates.push({description: ''})
+    },
+    removeCandidate () {
+      this.candidates.pop()
     }
   }
 }
 
 $(document).ready(function () {
-  $(document).on('click', '.btn-add', function (e) {
-    e.preventDefault()
-    var controlForm = $('.controls form:first')
-    var currentEntry = $(this).parents('.entry:first')
-    var newEntry = $(currentEntry.clone()).appendTo(controlForm)
-
-    newEntry.find('input').val('')
-    controlForm.find('.entry:not(:last) .btn-add')
-      .removeClass('btn-add').addClass('btn-remove')
-      .removeClass('btn-success').addClass('btn-danger')
-      .html('<i class="fa fa-minus"></i>')
-  }).on('click', '.btn-remove', function (e) {
-    $(this).parents('.entry:first').remove()
-    e.preventDefault()
-    return false
-  })
+  // $(document).on('click', '.btn-add', function (e) {
+  //   e.preventDefault()
+  //   var controlForm = $('.controls form:first')
+  //   var currentEntry = $(this).parents('.entry:first')
+  //   var newEntry = $(currentEntry.clone()).appendTo(controlForm)
+  //
+  //   newEntry.find('input').val('')
+  //   controlForm.find('.entry:not(:last) .btn-add')
+  //     .removeClass('btn-add').addClass('btn-remove')
+  //     .removeClass('btn-success').addClass('btn-danger')
+  //     .html('<i class="fa fa-minus"></i>')
+  // }).on('click', '.btn-remove', function (e) {
+  //   $(this).parents('.entry:first').remove()
+  //   e.preventDefault()
+  //   return false
+  // })
 })
 </script>
 
