@@ -4,7 +4,6 @@ import VoteJSON from '../../dist/contracts/Vote.json'
 import NodeRSA from 'node-rsa'
 import EthereumTx from 'ethereumjs-tx'
 import keythereum from 'keythereum'
-import crypto from 'crypto'
 
 // const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 

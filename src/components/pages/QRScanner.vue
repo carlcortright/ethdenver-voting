@@ -26,7 +26,7 @@
       onDecode (content) {
         content = decodeURIComponent(content)
         console.log(content)
-        this.$vote.publishWallet(content).then(()=>{router.push({'name': 'gov'})})
+        this.$vote.publishWallet(content).then(() => { router.push({'name': 'gov'}) })
       }
     }
   }
