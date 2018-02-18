@@ -4,20 +4,23 @@
     <AppNav>
 
     </AppNav>
-    <div v-if="!walletPublished">
-      Wallet has not been created. Show this QR code to an administrator.
-      <img :src="imgSrc">
-    </div>
-    <div v-else-if="!canVote">
-      Vote has not been enabled yet.
-    </div>
+    <div class="container-fluid person-qr">
+      <div v-if="!walletPublished">
+        <img :src="imgSrc" style="display:inline-block">
+        <h4>Wallet has not been created. Show this QR code to an administrator.</h4>
+        </div>
+        <div v-else-if="!canVote">
+          <h4>Vote has not been enabled yet.</h4>
+        </div>
 
-    <ol>
-      <li v-for="(cand,cId) in candidates">
-        {{ cand.description }}<a v-if="canVote && !voted" href="#" v-on:click="vote(cId)">Vote</a>
-      </li>
-    </ol>
-  </div>
+        <ol>
+          <li v-for="(cand,cId) in candidates">
+            {{ cand.description }}<a v-if="canVote && !voted" href="#" v-on:click="vote(cId)">Vote</a>
+          </li>
+        </ol>
+      </div>
+    </div>
+    
 </template>
 
 <script>
@@ -60,4 +63,7 @@
 </script>
 
 <style lang="scss" scoped>
+.person-qr {
+  text-align: center;
+}
 </style>
