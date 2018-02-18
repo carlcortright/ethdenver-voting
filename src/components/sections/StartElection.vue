@@ -1,23 +1,80 @@
 <template>
     <div id="mountain-background">
-        <b-button size="md" >New Election</b-button>
+        <div class="controls container-fluid"> 
+            <h1>Start a New Election</h1>
+            <div class="row">
+              <b-form role="form"  autocomplete="off" class="col-md-6">
+              <h3>Election Name</h3>
+              <b-input type="text" placeholder="ex Midterm Elections 2018" require></b-input>
+              <h3>Add Candidates</h3>
+              <div class="entry input-group col-xs-3">
+                <input class="form-control" name="fields[]" type="text" placeholder="Candidate Name" />
+                <span class="input-group-btn">
+                  <button class="btn btn-success btn-add" type="button">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </span>
+              </div>
+            </b-form>
+            </div>
+          <br>
+          <b-button class="btn-success" v-on:click="startElection" type="submit">Create Election</b-button>
+        </div>
     </div>
 </template>
 
 <script>
-export default {
+import $ from 'jquery'
 
+export default {
+  methods: {
+    startElection: function () {
+      console.log('here')
+    }
+  }
 }
+
+$(document).ready(function () {
+  $(document).on('click', '.btn-add', function (e) {
+    e.preventDefault()
+    var controlForm = $('.controls form:first')
+    var currentEntry = $(this).parents('.entry:first')
+    var newEntry = $(currentEntry.clone()).appendTo(controlForm)
+
+    newEntry.find('input').val('')
+    controlForm.find('.entry:not(:last) .btn-add')
+      .removeClass('btn-add').addClass('btn-remove')
+      .removeClass('btn-success').addClass('btn-danger')
+      .html('<i class="fa fa-minus"></i>')
+  }).on('click', '.btn-remove', function (e) {
+    $(this).parents('.entry:first').remove()
+    e.preventDefault()
+    return false
+  })
+})
 </script>
 
 <style>
 #mountain-background{
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin: 20px
 }
 #mountain-background button{
     width: auto;
+}
+.entry:not(:first-of-type)
+{
+    margin-top: 10px;
+}
+.glyphicon
+{
+    font-size: 12px;
+}
+.controls .btn {
+  margin: 0px;
+}
+h1,
+h3 {
+  margin-top: 20px;
 }
 </style>
