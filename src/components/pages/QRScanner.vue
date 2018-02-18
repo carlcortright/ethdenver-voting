@@ -3,7 +3,9 @@
     <AppNav>
 
     </AppNav>
-    <qrcode-reader @decode="onDecode"></qrcode-reader>
+    <div class="qr-wrapper">
+      <qrcode-reader @decode="onDecode" class="qr-scanner"></qrcode-reader>
+    </div>
   </div>
 </template>
 
@@ -31,5 +33,14 @@
   .fill-container {
     height: 100%;
     width: 100%;
+  }
+  .qr-scanner{
+    display: inline-block;
+    margin: 20px
+  }
+  .qr-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

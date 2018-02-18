@@ -99,4 +99,7 @@ h1,
 h3 {
   margin-top: 20px;
 }
+h1 {
+  text-align: center;
+}
 </style>
